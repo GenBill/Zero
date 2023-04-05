@@ -5,39 +5,56 @@ import torch.nn as nn
 class add(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.a = torch.ones((1,1,1,1), grad=True)
-        self.b = torch.ones((1,1,1,1), grad=True)
     def forward(self, x, y):
-        return self.a*x + self.b*y
+        return x + y
 
 class mul(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        
     def forward(self, x, y):
         return x*y
 
-class div(nn.Module):
+class div1(nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.a = torch.ones((1,1,1,1), grad=True)*0.5
     def forward(self, x, y):
-        div1 = self.a * x/(torch.abs(y)+1e-8)
-        div2 = (1-self.a) * y/(torch.abs(x)+1e-8)
-        return div1 + div2
+        div1 = x/(torch.abs(y)+1e-8)
+        return div1
+
+class div2(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    def forward(self, x, y):
+        div2 = y/(torch.abs(x)+1e-8)
+        return div2
+
+class mul_sin1(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    def forward(self, x, y):
+        sin1 = x*torch.sin(y)
+        # sin2 = y*torch.sin(x)
+        return sin1
+
+class mul_sin2(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    def forward(self, x, y):
+        sin2 = y*torch.sin(x)
+        return sin2
 
 class Basic_Operator(nn.Module):
     def __init__(self, num) -> None:
         super().__init__()
-        self.Operator_Set = [add(), mul(), div()]
+        self.Operator_Set = [add(), mul(), div1(), div2(), mul_sin1(), mul_sin2()]
         self.N = num
         self.param = torch.rand((len(self.Operator_Set), self.N), grad=True)
-        self.softmax = nn.softmax(?, dim=1)
+        self.softmax = nn.Softmax(?, dim=1)
     
     def forward(self, x, y):
         soft_param = self.softmax(self.param)
         ret = 0
-        for i, operator in enumerate(self.Activation_Set):
+        for i, operator in enumerate(self.Operator_Set):
             for j in range(self.N):
                 ret += operator(x,y) * soft_param[i, j]
         return ret
@@ -86,7 +103,7 @@ class Basic_Activation(nn.Module):
         self.Activation_Set = [inv(), log(), exp(), sin(), relu()]
         self.N = num
         self.param = torch.rand((len(self.Activation_Set), self.N), grad=True)
-        self.softmax = nn.softmax(?, dim=1)
+        self.softmax = nn.Softmax(?, dim=1)
     
     def forward(self, x):
         soft_param = self.softmax(self.param)
